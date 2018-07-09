@@ -30,7 +30,12 @@ if [[ -n "$PLUGIN_REBUILD" && "$PLUGIN_REBUILD" == "true" ]]; then
     fi
   done
 
-  tar cf - $PATHS | pigz > archive.tgz
+  if [[ $PATHS == "" ]]; then
+    echo "No paths found for cache. Moving on..."
+    exit 0
+  else
+    tar cf - $PATHS | pigz > archive.tgz
+  fi
 
   echo "Compression complete, uploading to S3"
 
