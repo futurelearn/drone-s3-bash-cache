@@ -17,6 +17,8 @@ FALLBACK_PATH="$DRONE_REPO_OWNER/$DRONE_REPO_NAME/master"
 
 PATHS_TO_TAR=$(echo $PLUGIN_MOUNT | sed 's/,/ /g')
 
+echo "Starting at $(date)"
+
 if [[ -n "$PLUGIN_REBUILD" && "$PLUGIN_REBUILD" == "true" ]]; then
 
   PATHS=""
@@ -43,6 +45,7 @@ if [[ -n "$PLUGIN_REBUILD" && "$PLUGIN_REBUILD" == "true" ]]; then
 
   echo "Upload completed!"
 
+  echo "Finished! Exiting at $(date)" && exit 0
 elif [[ -n "$PLUGIN_RESTORE" && "$PLUGIN_RESTORE" == "true" ]]; then
 
   if s3cmd get s3://$PLUGIN_BUCKET/$CACHE_PATH/archive.tgz archive.tgz; then
@@ -58,6 +61,7 @@ elif [[ -n "$PLUGIN_RESTORE" && "$PLUGIN_RESTORE" == "true" ]]; then
   unpigz < archive.tgz | tar -xC .
   echo "Cache uncompressed."
 
+  echo "Finished! Exiting at $(date)" && exit 0
 else
   echo "Must provide either restore or rebuild flag. Exiting!"
   exit 1
