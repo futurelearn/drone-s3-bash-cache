@@ -12,6 +12,12 @@ if [ -z "$PLUGIN_BUCKET" ]; then
   exit 1
 fi
 
+VERBOSE=""
+
+if [[ -n "$PLUGIN_VERBOSE" && "$PLUGIN_VERBOSE" == "true" ]]; then
+  VERBOSE="-v"
+fi
+
 CACHE_PATH="$DRONE_REPO_OWNER/$DRONE_REPO_NAME/$DRONE_BRANCH"
 FALLBACK_PATH="$DRONE_REPO_OWNER/$DRONE_REPO_NAME/master"
 
@@ -36,12 +42,12 @@ if [[ -n "$PLUGIN_REBUILD" && "$PLUGIN_REBUILD" == "true" ]]; then
     echo "No paths found for cache. Moving on..."
     exit 0
   else
-    tar cf - $PATHS | pigz > archive.tgz
+    tar cf - $PATHS | pigz $VERBOSE > archive.tgz
   fi
 
   echo "Compression complete, uploading to S3"
 
-  s3cmd sync archive.tgz s3://$PLUGIN_BUCKET/$CACHE_PATH/archive.tgz
+  s3cmd $VERBOSE sync archive.tgz s3://$PLUGIN_BUCKET/$CACHE_PATH/archive.tgz
 
   echo "Upload completed!"
 
@@ -58,7 +64,7 @@ elif [[ -n "$PLUGIN_RESTORE" && "$PLUGIN_RESTORE" == "true" ]]; then
   fi
 
   echo "Uncompressing cache file."
-  unpigz < archive.tgz | tar -xC .
+  unpigz $VERBOSE < archive.tgz | tar $VERBOSE -xC .
   echo "Cache uncompressed."
 
   echo "Finished! Exiting at $(date)" && exit 0
